@@ -1,0 +1,37 @@
+========================================================================================
+				AUTÔMATOS - TRABALHO FINAL
+========================================================================================
+	Integrantes: 	Natanael Da Silva Debona	-	00219823	
+			William Niemiec			-	00309069
+========================================================================================
+----------------------------------------------------------------------------------------
+	Avisos
+----------------------------------------------------------------------------------------
+-> Nenhum estado do autômato pode conter os seguintes símbolos:
+   └> '&'
+   └> '_'
+-> Estados dos autômatos só podem conter letras e números
+-> '&' será considerado símbolo que representa palavra vazia / indefinição
+
+
+----------------------------------------------------------------------------------------
+	Funcionamento do programa
+----------------------------------------------------------------------------------------
+-> A explicação sobre o funcionamento das funções está no arquivo src/Automato.py
+-> O arquivo de palavras deve ter um espaçamento entre um símbolo e outro ou deve-se
+usar aspas entre os símbolos do alfabeto
+
+
+----------------------------------------------------------------------------------------
+	Diretórios e arquivos
+----------------------------------------------------------------------------------------
+-> src: 	Contém códigos usados para construção do autômato e suas funções, além do main
+-> midia:	Contém arquivo do autômato criado na parte 1 do trabalho, bem como o
+arquivo contendo uma lista com 10 palavras (5 aceitas e 5 rejeitadas) e outros autômatos criados
+para demonstração do funcionamento da aplicação
+-> build:	Diretório criado para funcionamento do main.exe
+-> __pycache__: Diretório criado automaticamente para uso interno da aplicação
+-> .library.json: Arquivo criado automaticamente para uso interno da aplicação
+-> main.spec: Arquivo criado automaticamente para uso interno da aplicação
+-> testes.py:	Arquivo com códigos de teste para verificação do funcionamento do código 
+-> main.exe:	Arquivo executável do main
