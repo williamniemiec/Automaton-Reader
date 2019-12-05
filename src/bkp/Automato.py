@@ -125,8 +125,7 @@ def printFileContent(filename):
     pprint.pprint(content)
 
 def wait():
-  input("Tecle enter para continuar . . .")
-  
+    input("Tecle enter para continuar . . .")
 
 #--------------------------------------------------------------------------
 #    OBJETO AUTÔMATO
@@ -139,6 +138,7 @@ class Automato:
         self.estadoInicial = ''
         self.estadosFinais = []
         self.fPrograma = [] # matriz com colunas sendo estado, simbolo e prox estado
+        self.__estadosUnificados = {} # Dicionario com estados que foram unificados
     
     # Converte um arquivo txt com formato específico em um autômato
     def txtToAutomato(self, filename):
@@ -213,7 +213,6 @@ class Automato:
         actualStates = [afd.estadoInicial] # Armazena estados atuais que estão sendo analisados
         indice = 0 # Indice atual da fPrograma
         visitados = {}
-        estadosUnificados = {}
         filaEstados = [] # Fila de estados a serem processados
         larg = len(afd.alfabeto) + 1
         alt = 1
@@ -277,53 +276,99 @@ class Automato:
 
         # Percorre toda a tabela afn
         k = 0
+        estados = []
         for i in range(len(tabelaAFN)):
             estado = ''
             final = False
+            ignore = False
+            
             
             # Unifica estados de actualstates
-            tabelaAFN[i][0].sort()
             for state in tabelaAFN[i][0]:
-                estado += state + '_'
-
-                # Se estado for final, estado unificado deverá ser final também
-                if self.isFinal(state):
-                    final = True
-            
-            estado = estado[:-1:] # Remove '_' do final da string
-            
-            # Atualiza fPrograma
-            for j in range(1, len(afd.alfabeto)+1):
-                ####
-                tabelaAFN[i][j].sort()
-
-                if tabelaAFN[i][j]: # Verifica se a célula da tabela afn não é vazia
-                    afd.fPrograma[k][0] = estado
-                    afd.fPrograma[k][1] = afd.alfabeto[j-1]
+                if state == '&&' or state == '&':
+                    ignore = True 
+                    break
                     
-                    # Une lista de uma célula em uma única string
-                    for s in tabelaAFN[i][j]:
-                        afd.fPrograma[k][2] += s + '_'
-                    
-                    afd.fPrograma[k][2] = afd.fPrograma[k][2][:-1:] # Remove '_' do final da string
-                    k += 1
-                    afd.fPrograma.append(['', '', ''])
+                else:
+                    if self.__estadosUnificados.get(state) != None:
+                        try:
+                            index = estados.index(state)
+                            del estados[index]
+                        except:
+                            pass
+                        
+                        eU = self.__estadosUnificados[state]
+                        estados.append(eU)
+                    else:
+                        estados.append(state)
+                    #estado += state + '_'
+
+                    # Se estado for final, estado unificado deverá ser final também
+                    if self.isFinal(state):
+                        final = True
             
-            # Atualiza estados
-            afd.estados.append(estado)
-            
-            # Atualiza estados finais, se necessário
-            if final:
-                afd.estadosFinais.append(estado)
+            if ignore == False:
+                estados = removeDuplicates(estados)
+                estados.sort()
+                for state in estados:
+                    estado += state + '_'
+                estado = estado[:-1:] # Remove '_' do final da string
+                
+                for state in estados:
+                    if self.__estadosUnificados.get(state) == None:
+                        self.__estadosUnificados[state] = estado
+
+                # Atualiza fPrograma
+                for j in range(1, len(afd.alfabeto)+1):
+                    if tabelaAFN[i][j]: # Verifica se a célula da tabela afn não é vazia
+                        afd.fPrograma[k][0] = estado
+                        afd.fPrograma[k][1] = afd.alfabeto[j-1]
+
+                        # Une lista de uma célula em uma única string
+                        visitados = {}
+                        estados = []
+                        #for s in tabelaAFN[i][j]:
+                            #print('s ',s)
+                            #print(visitados)
+                        '''
+                            if visitados.get(s) != None:
+                                continue
+
+                            elif self.__estadosUnificados.get(s) == None:
+                                estados.append(s)
+                                #afd.fPrograma[k][2] += s + '_'
+                            else:
+                                estados.append(self.__estadosUnificados[s])
+                                #afd.fPrograma[k][2] += self.__estadosUnificados[s] + '_'
+                            visitados[s] = True
+                        for state in estados:
+                            afd.fPrograma[k][2] += state + '_'
+                        afd.fPrograma[k][2] = afd.fPrograma[k][2][:-1:] # Remove '_' do final da string
+                        '''
+
+                        if self.__estadosUnificados.get(s) != None:
+                            s = self.__estadosUnificados[s]
+                        afd.fPrograma[k][2] = s
+
+                        k += 1
+                        afd.fPrograma.append(['', '', ''])
+
+                # Atualiza estados
+                afd.estados.append(estado)
+
+                # Atualiza estados finais, se necessário
+                if final:
+                    afd.estadosFinais.append(estado)
         
         # Retira ultima posição da função programa (excesso)
         afd.fPrograma.pop()
-
+        
         ####
         # Deixa automato ordenado para evitar inconsistências
-        #afd.fPrograma.sort()
+        afd.fPrograma.sort()
         afd.estados.sort()
         afd.estadosFinais.sort()
+        print('estados: ', afd.estados)
         
         return afd           
     
@@ -565,9 +610,9 @@ class Automato:
     
     # Gera autômato mínimo, garantindo que autômato enviado cumpra os requisitos
     def aMin(self):
-        self = self.afnToAfd()          # Converte ele para afd
-        self.removeEstadosInalcancaveis()   # Remove seus estados inalcançaveis
-        self.convertAfdToFpt()          # Deixa ele com função programa total
+        self = self.afnToAfd()			# Converte ele para afd
+        self.removeEstadosInalcancaveis()	# Remove seus estados inalcançaveis
+        self.convertAfdToFpt()			# Deixa ele com função programa total
         
         return self.automatoMinimo()        # Converte em autômato mínimo
     
@@ -706,61 +751,81 @@ class Automato:
         ## Percorre tds estados não marcados e unifica eles
         for i in range(0, l):
             for j in range(1, i+2):
+                unificou = False
                 if tabDistincoes[i][j] == False:
-                    if tabDistincoes[i][0] == '&&' or tabDistincoes[l][j] == '&&':
-                        continue
                     # Concatena dois estados q1 e q2 e forma um novo 'q1_q2'
-                    if tabDistincoes[i][0] < tabDistincoes[l][j]:
-                        estadoU = tabDistincoes[i][0] +'_'+ tabDistincoes[l][j]
-                    else:
-                        estadoU = tabDistincoes[l][j] +'_'+ tabDistincoes[i][0]
+                    if tabDistincoes[i][0] != '&&' and tabDistincoes[l][j] != '&&':
+                        unificou = True
+                        
+                        # Deixa elementos que serão unificados em ordem
+                        if tabDistincoes[i][0] > tabDistincoes[l][j]:
+                            tmp = tabDistincoes[i][0]
+                            tabDistincoes[i][0] = tabDistincoes[l][j]
+                            tabDistincoes[l][j] = tmp
 
-                    k = 0
-                    # Substitui todas transições que gerem q1 ou q2 por q1_q2
-                    while k < len(afm.fPrograma):
-                        # Atualiza função programa
-                        if afm.fPrograma[k][0] == tabDistincoes[i][0]:
-                            afm.fPrograma[k][0] = estadoU
-                        
-                        # Se havia uma transição para esse estado, muda para ela ir para o estado unificado
-                        if afm.fPrograma[k][2] == tabDistincoes[i][0]:
-                            afm.fPrograma[k][2] = estadoU
-                                               
-                        # Exclui o outro estado (já que foi unificado)
-                        if afm.fPrograma[k][0] == tabDistincoes[l][j]:
-                            afm.fPrograma[k][0] = estadoU
-                        
-                        # Se havia uma transição para esse estado, muda para ela ir para o estado unificado
-                        if afm.fPrograma[k][2] == tabDistincoes[l][j]:
-                            afm.fPrograma[k][2] = estadoU
-
-                        if afm.fPrograma[k][2] == '&&':
-                            afm.fPrograma.pop(k)
-                            k -= 1
-                        
-                        k += 1
-                    
-                    k = 0
-                    # Atualiza estados com o estado unificado
-                    while k < len(afm.estados):
-                        if afm.estados[k] == tabDistincoes[i][0] or afm.estados[k] == tabDistincoes[l][j]:
-                            afm.estados[k] = estadoU 
-                        k += 1
-                    
-                    k = 0
-                    # Atualiza estados finais com o estado unificado (se necessário)
-                    while k < len(afm.estadosFinais):
-                        if afm.estadosFinais[k] == tabDistincoes[i][0] or afm.estadosFinais[k] == tabDistincoes[l][j]:
-                            afm.estadosFinais[k] = estadoU
+                        if self.__estadosUnificados.get(tabDistincoes[i][0]) != None:
+                            if self.__estadosUnificados.get(tabDistincoes[l][j]) != None:
+                                estadoU = self.__estadosUnificados[tabDistincoes[i][0]] + '_' + self.__estadosUnificados[tabDistincoes[l][j]]
+                            else:
+                                estadoU = self.__estadosUnificados[tabDistincoes[i][0]] + '_' + tabDistincoes[l][j]
+                        else:
+                            if self.__estadosUnificados.get(tabDistincoes[l][j]) != None:
+                                estadoU = tabDistincoes[i][0] + '_' + self.__estadosUnificados[tabDistincoes[l][j]]
+                            else:
+                                estadoU = tabDistincoes[i][0] + '_' + tabDistincoes[l][j]
                             
-                        k += 1
-                    
-                    # Atualiza estado inicial com o estado unificado (se necessário)
-                    if afm.estadoInicial == tabDistincoes[i][0]:
-                        afm.estadoInicial = estadoU
-                    
-                    if afm.estadoInicial == tabDistincoes[l][j]:
-                        afm.estadoInicial = estadoU
+                    if unificou:
+                        if self.__estadosUnificados.get(tabDistincoes[i][0]) == None:
+                            self.__estadosUnificados[tabDistincoes[i][0]] = estadoU
+                        if self.__estadosUnificados.get(tabDistincoes[l][j]) == None:
+                            self.__estadosUnificados[tabDistincoes[l][j]] = estadoU
+                            
+                        k = 0
+                        # Substitui todas transições que gerem q1 ou q2 por q1_q2
+                        while k < len(afm.fPrograma):
+                            # Atualiza função programa
+                            if afm.fPrograma[k][0] == tabDistincoes[i][0]:
+                                afm.fPrograma[k][0] = estadoU
+
+                            # Se havia uma transição para esse estado, muda para ela ir para o estado unificado
+                            if afm.fPrograma[k][2] == tabDistincoes[i][0]:
+                                afm.fPrograma[k][2] = estadoU
+
+                            # Exclui o outro estado (já que foi unificado)
+                            if afm.fPrograma[k][0] == tabDistincoes[l][j]:
+                                afm.fPrograma[k][0] = estadoU
+
+                            # Se havia uma transição para esse estado, muda para ela ir para o estado unificado
+                            if afm.fPrograma[k][2] == tabDistincoes[l][j]:
+                                afm.fPrograma[k][2] = estadoU
+
+                            if afm.fPrograma[k][2] == '&&':
+                                afm.fPrograma.pop(k)
+                                k -= 1
+
+                            k += 1
+
+                        k = 0
+                        # Atualiza estados com o estado unificado
+                        while k < len(afm.estados):
+                            if afm.estados[k] == tabDistincoes[i][0] or afm.estados[k] == tabDistincoes[l][j]:
+                                afm.estados[k] = estadoU 
+                            k += 1
+
+                        k = 0
+                        # Atualiza estados finais com o estado unificado (se necessário)
+                        while k < len(afm.estadosFinais):
+                            if afm.estadosFinais[k] == tabDistincoes[i][0] or afm.estadosFinais[k] == tabDistincoes[l][j]:
+                                afm.estadosFinais[k] = estadoU
+
+                            k += 1
+
+                        # Atualiza estado inicial com o estado unificado (se necessário)
+                        if afm.estadoInicial == tabDistincoes[i][0]:
+                            afm.estadoInicial = estadoU
+
+                        if afm.estadoInicial == tabDistincoes[l][j]:
+                            afm.estadoInicial = estadoU
         
         
         ## Exclusão de estados inúteis
@@ -834,14 +899,18 @@ class Automato:
         afm.fPrograma = removeDuplicates(afm.fPrograma)
         
         ####
+        #Elimina estado &&
+        s = afm.estados.pop()
+        if s != '&&':
+        	afm.estados.append(s) 
+        
         afm.estadosFinais = removeDuplicates(afm.estadosFinais)
         afm.fPrograma.sort()
-        afm.estados.sort(reverse=True)
+        afm.estados.sort()
         afm.estadosFinais.sort()
-        q = afm.estados.pop() #Elimina estado &&
-        if q != '&&':
-            afm.estados.append(q)
-            afm.estados.sort()
+        
+        
+
         return afm
     
     # Dados dois AFD M1 e M2, decidir se ACEITA(M1) = ACEITA(M2)
@@ -850,81 +919,81 @@ class Automato:
         minM2 = m2.aMin()
 
         # Verifica se cada estado do minM1 gera as mesmas transições que minM2
-        #if  (len(minM1.estados) != len(minM2.estados)) or (len(minM1.alfabeto) != len(minM2.alfabeto)) or (len(minM1.estadosFinais) != len(minM2.estadosFinais)):
-        #        return False
-        #else:
-        pilha = [] #[est_antigo, novo estado]
-        index = 0
-        minM1.fPrograma.sort()
-        minM2.fPrograma.sort()
-
-        # Renomeia estados da função programa de M1
-        i = 0
-        lastState = minM1.fPrograma[i][0]
-
-        while i < len(minM1.fPrograma):
-            pilha.append([minM1.fPrograma[i][0], '_Q' + str(index)])
-
-            if minM1.fPrograma[i][0] == lastState:
-                lastState = minM1.fPrograma[i][0]
-                minM1.fPrograma[i][0] = '_Q' + str(index)
-
-            else:
-                lastState = minM1.fPrograma[i][0]
-                index += 1
-                minM1.fPrograma[i][0] = '_Q' + str(index)
-            i += 1
-
-        # Renomeia estados restantes de M1
-        while pilha:
-            tmp = pilha.pop()
-            est_ant = tmp[0]
-            est_renom = tmp[1]
-
-            for i in range(len(minM1.fPrograma)):
-                if minM1.fPrograma[i][2] == est_ant:
-                    minM1.fPrograma[i][2] = est_renom
-
-            if minM1.estadoInicial == est_ant:
-                minM1.estadoInicial = est_renom
-
-        # Renomeia estados da função programa de M2
-        pilha = []
-        index = 0
-
-        # Renomeia estados restantes de M2
-        i = 0
-        lastState = minM2.fPrograma[i][0]
-
-        while i < len(minM2.fPrograma):
-            pilha.append([minM2.fPrograma[i][0], '_Q' + str(index)])
-
-            if minM2.fPrograma[i][0] == lastState:
-                lastState = minM2.fPrograma[i][0]
-                minM2.fPrograma[i][0] = '_Q' + str(index)
-
-            else:
-                lastState = minM2.fPrograma[i][0]
-                index += 1
-                minM2.fPrograma[i][0] = '_Q' + str(index)
-            i += 1
-
-        while pilha:
-            tmp = pilha.pop()
-            est_ant = tmp[0]
-            est_renom = tmp[1]
-
-            for i in range(len(minM2.fPrograma)):
-                if minM2.fPrograma[i][2] == est_ant:
-                    minM2.fPrograma[i][2] = est_renom
-
-            if minM2.estadoInicial == est_ant:
-                minM2.estadoInicial = est_renom
-
-        # Verifica se sao equivalentes
-        for i in range(len(minM1.fPrograma)):
-            if minM1.fPrograma[i][0] != minM2.fPrograma[i][0] or minM1.fPrograma[i][1] != minM2.fPrograma[i][1] or minM1.fPrograma[i][2] != minM2.fPrograma[i][2]:
+        if  (len(minM1.estados) != len(minM2.estados)) or (len(minM1.alfabeto) != len(minM2.alfabeto)) or (len(minM1.estadosFinais) != len(minM2.estadosFinais)):
                 return False
+        else:
+            pilha = [] #[est_antigo, novo estado]
+            index = 0
+            minM1.fPrograma.sort()
+            minM2.fPrograma.sort()
+
+            # Renomeia estados da função programa de M1
+            i = 0
+            lastState = minM1.fPrograma[i][0]
+
+            while i < len(minM1.fPrograma):
+                pilha.append([minM1.fPrograma[i][0], '_Q' + str(index)])
+
+                if minM1.fPrograma[i][0] == lastState:
+                    lastState = minM1.fPrograma[i][0]
+                    minM1.fPrograma[i][0] = '_Q' + str(index)
+
+                else:
+                    lastState = minM1.fPrograma[i][0]
+                    index += 1
+                    minM1.fPrograma[i][0] = '_Q' + str(index)
+                i += 1
+
+            # Renomeia estados restantes de M1
+            while pilha:
+                tmp = pilha.pop()
+                est_ant = tmp[0]
+                est_renom = tmp[1]
+
+                for i in range(len(minM1.fPrograma)):
+                    if minM1.fPrograma[i][2] == est_ant:
+                        minM1.fPrograma[i][2] = est_renom
+
+                if minM1.estadoInicial == est_ant:
+                    minM1.estadoInicial = est_renom
+
+            # Renomeia estados da função programa de M2
+            pilha = []
+            index = 0
+
+            # Renomeia estados restantes de M2
+            i = 0
+            lastState = minM2.fPrograma[i][0]
+
+            while i < len(minM2.fPrograma):
+                pilha.append([minM2.fPrograma[i][0], '_Q' + str(index)])
+
+                if minM2.fPrograma[i][0] == lastState:
+                    lastState = minM2.fPrograma[i][0]
+                    minM2.fPrograma[i][0] = '_Q' + str(index)
+
+                else:
+                    lastState = minM2.fPrograma[i][0]
+                    index += 1
+                    minM2.fPrograma[i][0] = '_Q' + str(index)
+                i += 1
+
+            while pilha:
+                tmp = pilha.pop()
+                est_ant = tmp[0]
+                est_renom = tmp[1]
+
+                for i in range(len(minM2.fPrograma)):
+                    if minM2.fPrograma[i][2] == est_ant:
+                        minM2.fPrograma[i][2] = est_renom
+
+                if minM2.estadoInicial == est_ant:
+                    minM2.estadoInicial = est_renom
+
+            # Verifica se sao equivalentes
+            for i in range(len(minM1.fPrograma)):
+                if minM1.fPrograma[i][0] != minM2.fPrograma[i][0] or minM1.fPrograma[i][2] != minM2.fPrograma[i][2]:
+                    return False
 
         return True
       

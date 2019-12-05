@@ -282,7 +282,6 @@ class Automato:
             final = False
             
             # Unifica estados de actualstates
-            tabelaAFN[i][0].sort()
             for state in tabelaAFN[i][0]:
                 estado += state + '_'
 
@@ -294,9 +293,6 @@ class Automato:
             
             # Atualiza fPrograma
             for j in range(1, len(afd.alfabeto)+1):
-                ####
-                tabelaAFN[i][j].sort()
-
                 if tabelaAFN[i][j]: # Verifica se a célula da tabela afn não é vazia
                     afd.fPrograma[k][0] = estado
                     afd.fPrograma[k][1] = afd.alfabeto[j-1]
@@ -318,12 +314,6 @@ class Automato:
         
         # Retira ultima posição da função programa (excesso)
         afd.fPrograma.pop()
-
-        ####
-        # Deixa automato ordenado para evitar inconsistências
-        #afd.fPrograma.sort()
-        afd.estados.sort()
-        afd.estadosFinais.sort()
         
         return afd           
     
@@ -707,8 +697,6 @@ class Automato:
         for i in range(0, l):
             for j in range(1, i+2):
                 if tabDistincoes[i][j] == False:
-                    if tabDistincoes[i][0] == '&&' or tabDistincoes[l][j] == '&&':
-                        continue
                     # Concatena dois estados q1 e q2 e forma um novo 'q1_q2'
                     if tabDistincoes[i][0] < tabDistincoes[l][j]:
                         estadoU = tabDistincoes[i][0] +'_'+ tabDistincoes[l][j]
@@ -832,16 +820,8 @@ class Automato:
         '''
         afm.estados = removeDuplicates(afm.estados)
         afm.fPrograma = removeDuplicates(afm.fPrograma)
-        
-        ####
-        afm.estadosFinais = removeDuplicates(afm.estadosFinais)
-        afm.fPrograma.sort()
-        afm.estados.sort(reverse=True)
-        afm.estadosFinais.sort()
-        q = afm.estados.pop() #Elimina estado &&
-        if q != '&&':
-            afm.estados.append(q)
-            afm.estados.sort()
+        afm.estados.pop() #Elimina estado &&
+
         return afm
     
     # Dados dois AFD M1 e M2, decidir se ACEITA(M1) = ACEITA(M2)
@@ -850,81 +830,81 @@ class Automato:
         minM2 = m2.aMin()
 
         # Verifica se cada estado do minM1 gera as mesmas transições que minM2
-        #if  (len(minM1.estados) != len(minM2.estados)) or (len(minM1.alfabeto) != len(minM2.alfabeto)) or (len(minM1.estadosFinais) != len(minM2.estadosFinais)):
-        #        return False
-        #else:
-        pilha = [] #[est_antigo, novo estado]
-        index = 0
-        minM1.fPrograma.sort()
-        minM2.fPrograma.sort()
-
-        # Renomeia estados da função programa de M1
-        i = 0
-        lastState = minM1.fPrograma[i][0]
-
-        while i < len(minM1.fPrograma):
-            pilha.append([minM1.fPrograma[i][0], '_Q' + str(index)])
-
-            if minM1.fPrograma[i][0] == lastState:
-                lastState = minM1.fPrograma[i][0]
-                minM1.fPrograma[i][0] = '_Q' + str(index)
-
-            else:
-                lastState = minM1.fPrograma[i][0]
-                index += 1
-                minM1.fPrograma[i][0] = '_Q' + str(index)
-            i += 1
-
-        # Renomeia estados restantes de M1
-        while pilha:
-            tmp = pilha.pop()
-            est_ant = tmp[0]
-            est_renom = tmp[1]
-
-            for i in range(len(minM1.fPrograma)):
-                if minM1.fPrograma[i][2] == est_ant:
-                    minM1.fPrograma[i][2] = est_renom
-
-            if minM1.estadoInicial == est_ant:
-                minM1.estadoInicial = est_renom
-
-        # Renomeia estados da função programa de M2
-        pilha = []
-        index = 0
-
-        # Renomeia estados restantes de M2
-        i = 0
-        lastState = minM2.fPrograma[i][0]
-
-        while i < len(minM2.fPrograma):
-            pilha.append([minM2.fPrograma[i][0], '_Q' + str(index)])
-
-            if minM2.fPrograma[i][0] == lastState:
-                lastState = minM2.fPrograma[i][0]
-                minM2.fPrograma[i][0] = '_Q' + str(index)
-
-            else:
-                lastState = minM2.fPrograma[i][0]
-                index += 1
-                minM2.fPrograma[i][0] = '_Q' + str(index)
-            i += 1
-
-        while pilha:
-            tmp = pilha.pop()
-            est_ant = tmp[0]
-            est_renom = tmp[1]
-
-            for i in range(len(minM2.fPrograma)):
-                if minM2.fPrograma[i][2] == est_ant:
-                    minM2.fPrograma[i][2] = est_renom
-
-            if minM2.estadoInicial == est_ant:
-                minM2.estadoInicial = est_renom
-
-        # Verifica se sao equivalentes
-        for i in range(len(minM1.fPrograma)):
-            if minM1.fPrograma[i][0] != minM2.fPrograma[i][0] or minM1.fPrograma[i][1] != minM2.fPrograma[i][1] or minM1.fPrograma[i][2] != minM2.fPrograma[i][2]:
+        if  (len(minM1.estados) != len(minM2.estados)) or (len(minM1.alfabeto) != len(minM2.alfabeto)) or (len(minM1.estadosFinais) != len(minM2.estadosFinais)):
                 return False
+        else:
+            pilha = [] #[est_antigo, novo estado]
+            index = 0
+            minM1.fPrograma.sort()
+            minM2.fPrograma.sort()
+
+            # Renomeia estados da função programa de M1
+            i = 0
+            lastState = minM1.fPrograma[i][0]
+
+            while i < len(minM1.fPrograma):
+                pilha.append([minM1.fPrograma[i][0], '_Q' + str(index)])
+
+                if minM1.fPrograma[i][0] == lastState:
+                    lastState = minM1.fPrograma[i][0]
+                    minM1.fPrograma[i][0] = '_Q' + str(index)
+
+                else:
+                    lastState = minM1.fPrograma[i][0]
+                    index += 1
+                    minM1.fPrograma[i][0] = '_Q' + str(index)
+                i += 1
+
+            # Renomeia estados restantes de M1
+            while pilha:
+                tmp = pilha.pop()
+                est_ant = tmp[0]
+                est_renom = tmp[1]
+
+                for i in range(len(minM1.fPrograma)):
+                    if minM1.fPrograma[i][2] == est_ant:
+                        minM1.fPrograma[i][2] = est_renom
+
+                if minM1.estadoInicial == est_ant:
+                    minM1.estadoInicial = est_renom
+
+            # Renomeia estados da função programa de M2
+            pilha = []
+            index = 0
+
+            # Renomeia estados restantes de M2
+            i = 0
+            lastState = minM2.fPrograma[i][0]
+
+            while i < len(minM2.fPrograma):
+                pilha.append([minM2.fPrograma[i][0], '_Q' + str(index)])
+
+                if minM2.fPrograma[i][0] == lastState:
+                    lastState = minM2.fPrograma[i][0]
+                    minM2.fPrograma[i][0] = '_Q' + str(index)
+
+                else:
+                    lastState = minM2.fPrograma[i][0]
+                    index += 1
+                    minM2.fPrograma[i][0] = '_Q' + str(index)
+                i += 1
+
+            while pilha:
+                tmp = pilha.pop()
+                est_ant = tmp[0]
+                est_renom = tmp[1]
+
+                for i in range(len(minM2.fPrograma)):
+                    if minM2.fPrograma[i][2] == est_ant:
+                        minM2.fPrograma[i][2] = est_renom
+
+                if minM2.estadoInicial == est_ant:
+                    minM2.estadoInicial = est_renom
+
+            # Verifica se sao equivalentes
+            for i in range(len(minM1.fPrograma)):
+                if minM1.fPrograma[i][0] != minM2.fPrograma[i][0] or minM1.fPrograma[i][2] != minM2.fPrograma[i][2]:
+                    return False
 
         return True
       
