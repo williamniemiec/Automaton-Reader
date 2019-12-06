@@ -1,0 +1,7 @@
+Natanael
+
+convertAfdToFpt
+estadosAtingiveis
+estadosAlcancaveis
+removeEstadosInalcancaveis
+verificaPalavras
