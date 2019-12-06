@@ -240,7 +240,7 @@ class Automato:
                 s = ''
                 aux2 = []
                 for state in actualStates:
-                    s += state
+                    s += state # unifica estados
                     fP = self.funcaoPrograma(state, symbol)
 
                     if fP[0] == '&':
@@ -253,13 +253,13 @@ class Automato:
                 aux2 = removeDuplicates(aux2)
                 
                 j += 1
-                visitados[s] = True
+                visitados[s] = True # marca estado unificado como visitado
                 aux.append(aux2)
             
             # Prepara a próxima iteração
             i += 1
             tabelaAFN.append([[] for x in range(larg)])
-            actualStates = listaMaiorTamanho_NãoVisitado(aux, visitados, filaEstados)
+            actualStates = listaMaiorTamanho_NãoVisitado(aux, visitados, filaEstados) # se tds campos em aux tiverem msm tam, retorna fila deles em filaEstados
 
         tabelaAFN.pop() # Remove final, que será vazio
         
@@ -340,6 +340,8 @@ class Automato:
         for state in self.estados:
             for symbol in self.alfabeto:
                 fp = self.funcaoPrograma(state, symbol)
+
+                # Se encontrar uma indefinição, coloca transição para d
                 if fp[0] == '&':
                     naoTotal = True
                     self.fPrograma.insert(i, [state, symbol, d])
@@ -862,10 +864,12 @@ class Automato:
         i = 0
         lastState = minM1.fPrograma[i][0]
 
+        # Percorre toda fPrograma de M1
         while i < len(minM1.fPrograma):
             pilha.append([minM1.fPrograma[i][0], '_Q' + str(index)])
 
-            if minM1.fPrograma[i][0] == lastState:
+            # Verifica se o ultimo estado renomeado é igual ao estado que está sendo analisado
+            if minM1.fPrograma[i][0] == lastState: # Se for, não incrementa o index
                 lastState = minM1.fPrograma[i][0]
                 minM1.fPrograma[i][0] = '_Q' + str(index)
 
@@ -875,6 +879,7 @@ class Automato:
                 minM1.fPrograma[i][0] = '_Q' + str(index)
             i += 1
 
+        # Percorre toda fPrograma de M1 e atualiza prox_est
         # Renomeia estados restantes de M1
         while pilha:
             tmp = pilha.pop()
