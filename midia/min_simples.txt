@@ -1,0 +1,9 @@
+MIN_SIMPLES=({q0,q1,q2,qf},{a,b},q0,{qf})
+Prog
+(q0,a)=q1
+(q1,a)=q2
+(q1,b)=q2
+(q2,a)=qf
+(q2,b)=qf
+(qf,a)=qf
+(qf,b)=qf

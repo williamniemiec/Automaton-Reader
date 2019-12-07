@@ -28,7 +28,6 @@ def csvToWordList(filename):
     content = file.readlines()
     file.close()  
     
-    
     # Lê cada linha do arquivo e coloca na wordList
     for line in content:
         tmp = []
@@ -48,21 +47,9 @@ def removeDuplicates(duplicate):
     return final_list 
 
 
-# Dada uma lista, retorna aquela que possui maior tamanho
-def listaMaiorTamanho(lista):
-    indexMaior = 0
-    tamMaior = 0
-    
-    for i in range(len(lista)):
-        if len(lista[i]) > tamMaior:
-            indexMaior = i
-            tamMaior = len(lista[i])
-    return lista[indexMaior]
-
-
 # Retorna lista de maior tamanho sem elem que ja foram visitados (se todas listas tiverem elementos visitados, retorna None)
 # Se todas as listas forem de tamanho 1, retorna None e atualiza pilha de estados a serem processados
-def listaMaiorTamanho_NãoVisitado(lista, visitados, pilhaProc):
+def listaMaiorTamanho_NaoVisitado(lista, visitados, pilhaProc):
     if not lista:
         return None
     
@@ -140,6 +127,8 @@ class Automato:
         self.estadosFinais = []
         self.fPrograma = [] # matriz com colunas sendo estado, simbolo e prox estado
     
+
+
     # Converte um arquivo txt com formato específico em um autômato
     def txtToAutomato(self, filename):
         erro = False
@@ -201,6 +190,7 @@ class Automato:
         pprint.pprint(self.fPrograma)
         printDiv()
     
+
     # Converte autômato não deterministico em deterministico
     def afnToAfd(self):
         afd = Automato()
@@ -259,7 +249,7 @@ class Automato:
             # Prepara a próxima iteração
             i += 1
             tabelaAFN.append([[] for x in range(larg)])
-            actualStates = listaMaiorTamanho_NãoVisitado(aux, visitados, filaEstados) # se tds campos em aux tiverem msm tam, retorna fila deles em filaEstados
+            actualStates = listaMaiorTamanho_NaoVisitado(aux, visitados, filaEstados) # se tds campos em aux tiverem msm tam, retorna fila deles em filaEstados
 
         tabelaAFN.pop() # Remove final, que será vazio
         
@@ -274,7 +264,6 @@ class Automato:
         '''  
         
         ## Geração do afd
-
         # Percorre toda a tabela afn
         k = 0
         for i in range(len(tabelaAFN)):
@@ -318,10 +307,6 @@ class Automato:
         
         # Retira ultima posição da função programa (excesso)
         afd.fPrograma.pop()
-
-        ####
-        # Deixa automato ordenado para evitar inconsistências
-        #afd.fPrograma.sort()
         afd.estados.sort()
         afd.estadosFinais.sort()
         
@@ -447,6 +432,25 @@ class Automato:
         
         if not achou: # Se não achou, retorna palavra vazia
             retorno.append('&')
+        
+        return retorno
+
+    ####
+    # Dado um estado, retorna todos os símbolos que um estado consegue atingir diretamente
+    def simbolosAtingiveis(self, estado):
+        i = 0
+        achou = False
+        retorno = []
+        
+        # Busca símbolos atingiveis pelo estado fornecido
+        while i < len(self.fPrograma):
+            if (self.fPrograma[i][0] == estado) and (retorno.count(self.fPrograma[i][1]) == 0):
+                achou = True
+                retorno.append(self.fPrograma[i][1])
+            i += 1
+        
+        if not achou: 
+            return None
         
         return retorno
     
@@ -821,7 +825,24 @@ class Automato:
                     for state in est_fp:
                         if visitado.get(state) == None:
                             pilha.append(state)
-            
+
+        ####
+        # Elimina && do automato (se tiver)
+        try:
+            indice = afm.estados.index('&&')
+            afm.estados.pop(indice)
+        except:
+            pass
+
+        # Elimina transições para estados que foram eliminados dos estados do automato
+        i = 0
+        tam = len(afm.fPrograma)
+        while i < tam:
+            if afm.estados.count(afm.fPrograma[i][0]) == 0 or afm.estados.count(afm.fPrograma[i][2]) == 0:
+                afm.fPrograma.pop(i)
+                tam -= 1
+                i -= 1
+            i += 1
             
         # Printa tabela de distinções
         '''
@@ -838,102 +859,99 @@ class Automato:
         ####
         afm.estadosFinais = removeDuplicates(afm.estadosFinais)
         afm.fPrograma.sort()
-        afm.estados.sort(reverse=True)
         afm.estadosFinais.sort()
-        q = afm.estados.pop() #Elimina estado &&
-        if q != '&&':
-            afm.estados.append(q)
-            afm.estados.sort()
+        
         return afm
     
     # Dados dois AFD M1 e M2, decidir se ACEITA(M1) = ACEITA(M2)
-    def verificaEquivalencia(self, m2):
+    def verificaEquivalencia(self, m2):        
+        fila_estados1 = []
+        fila_estados2 = []
+        visitados1 = {}
+        visitados2 = {}
+
         minM1 = self.aMin()
         minM2 = m2.aMin()
 
-        # Verifica se cada estado do minM1 gera as mesmas transições que minM2
-        #if  (len(minM1.estados) != len(minM2.estados)) or (len(minM1.alfabeto) != len(minM2.alfabeto)) or (len(minM1.estadosFinais) != len(minM2.estadosFinais)):
-        #        return False
-        #else:
-        pilha = [] #[est_antigo, novo estado]
-        index = 0
-        minM1.fPrograma.sort()
-        minM2.fPrograma.sort()
+        fila_estados1.insert(0, minM1.estadoInicial)
+        fila_estados2.insert(0, minM2.estadoInicial)
 
-        # Renomeia estados da função programa de M1
-        i = 0
-        lastState = minM1.fPrograma[i][0]
+        while fila_estados1 and fila_estados2:
+            #print('fe1 ', fila_estados1)
+            #print('fe2 ', fila_estados2)
+            fila_prox_estados1 = []
+            fila_prox_estados2 = []
+            lista_simb1 = []
+            lista_simb2 = []
+            totFinal1 = 0
+            totFinal2 = 0
 
-        # Percorre toda fPrograma de M1
-        while i < len(minM1.fPrograma):
-            pilha.append([minM1.fPrograma[i][0], '_Q' + str(index)])
+            # Pega simbolos atingiveis pelo automato 1
+            for state in fila_estados1:
+                #print(state)
+                tmp = minM1.simbolosAtingiveis(state)
+                #print('SA1: ', tmp)
+                if tmp != None:
+                    lista_simb1.extend(tmp)
+                visitados1[state] = True
+                
+                if minM1.isFinal(state):
+                    totFinal1 += 1
 
-            # Verifica se o ultimo estado renomeado é igual ao estado que está sendo analisado
-            if minM1.fPrograma[i][0] == lastState: # Se for, não incrementa o index
-                lastState = minM1.fPrograma[i][0]
-                minM1.fPrograma[i][0] = '_Q' + str(index)
+            for state in fila_estados2:
+                tmp = minM2.simbolosAtingiveis(state)
+                #print('SA2: ', tmp)
+                if tmp != None:
+                    lista_simb2.extend(tmp)
+                visitados2[state] = True
 
-            else:
-                lastState = minM1.fPrograma[i][0]
-                index += 1
-                minM1.fPrograma[i][0] = '_Q' + str(index)
-            i += 1
+                if minM2.isFinal(state):
+                    totFinal2 += 1
 
-        # Percorre toda fPrograma de M1 e atualiza prox_est
-        # Renomeia estados restantes de M1
-        while pilha:
-            tmp = pilha.pop()
-            est_ant = tmp[0]
-            est_renom = tmp[1]
-
-            for i in range(len(minM1.fPrograma)):
-                if minM1.fPrograma[i][2] == est_ant:
-                    minM1.fPrograma[i][2] = est_renom
-
-            if minM1.estadoInicial == est_ant:
-                minM1.estadoInicial = est_renom
-
-        # Renomeia estados da função programa de M2
-        pilha = []
-        index = 0
-
-        # Renomeia estados restantes de M2
-        i = 0
-        lastState = minM2.fPrograma[i][0]
-
-        while i < len(minM2.fPrograma):
-            pilha.append([minM2.fPrograma[i][0], '_Q' + str(index)])
-
-            if minM2.fPrograma[i][0] == lastState:
-                lastState = minM2.fPrograma[i][0]
-                minM2.fPrograma[i][0] = '_Q' + str(index)
-
-            else:
-                lastState = minM2.fPrograma[i][0]
-                index += 1
-                minM2.fPrograma[i][0] = '_Q' + str(index)
-            i += 1
-
-        while pilha:
-            tmp = pilha.pop()
-            est_ant = tmp[0]
-            est_renom = tmp[1]
-
-            for i in range(len(minM2.fPrograma)):
-                if minM2.fPrograma[i][2] == est_ant:
-                    minM2.fPrograma[i][2] = est_renom
-
-            if minM2.estadoInicial == est_ant:
-                minM2.estadoInicial = est_renom
-
-        # Verifica se sao equivalentes
-        for i in range(len(minM1.fPrograma)):
-            if minM1.fPrograma[i][0] != minM2.fPrograma[i][0] or minM1.fPrograma[i][1] != minM2.fPrograma[i][1] or minM1.fPrograma[i][2] != minM2.fPrograma[i][2]:
+            if (set(lista_simb1) != set(lista_simb2)) or (totFinal1 != totFinal2):
                 return False
 
+            # Prepara a próxima iteração
+            for state in fila_estados1:
+                fila_prox_estados1.extend(minM1.estadosAtingiveis(state))
+
+            for state in fila_estados2:
+                fila_prox_estados2.extend(minM2.estadosAtingiveis(state))
+
+            # Elimina estados que já foram visitados
+            i = 0
+            tam = len(fila_prox_estados1)
+            #print('pe 1: ', fila_prox_estados1)
+            #print('viz1', visitados1)
+            while i < tam:
+                if visitados1.get(fila_prox_estados1[i]) != None:
+                    fila_prox_estados1.pop(i)
+                    tam -= 1
+                    i -= 1
+                i += 1
+            #print('pe 1: ', fila_prox_estados1)
+
+            i = 0
+            tam = len(fila_prox_estados2)
+            #print('pe 2: ', fila_prox_estados2)
+            #print('viz2', visitados2)
+            while i < tam:
+                if visitados2.get(fila_prox_estados2[i]) != None:
+                    fila_prox_estados2.pop(i)
+                    tam -= 1
+                    i -= 1 # Decrementa i pq vai ser incrementado logo em seguida, e como foi exluido um item, evita que pule itens
+                i += 1
+            #print('pe 2: ', fila_prox_estados2)
+
+            fila_estados1 = fila_prox_estados1
+            fila_estados2 = fila_prox_estados2
+
+        if fila_estados1 or fila_estados2:
+            return False
+
         return True
-      
-    # Dados dois AFD M1 e M2, decidir se ACEITA(M1) = ACEITA(M2)
+
+
     def destroi(self):
         del self
         return None
