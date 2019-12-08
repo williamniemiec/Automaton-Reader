@@ -6,3 +6,4 @@ estadosAtingiveis
 estadosAlcancaveis
 removeEstadosInalcancaveis
 verificaPalavras
+
