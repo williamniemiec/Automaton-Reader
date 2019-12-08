@@ -467,6 +467,7 @@ class Automato:
         return False
     
 
+    # Dada uma lista de palavras, retorna um dicionário com palavras aceitas e rejeitadas
     def verificaPalavras(self, wordList):
         i = 1
         tam = len(self.fPrograma)
@@ -876,9 +877,8 @@ class Automato:
         fila_estados1.insert(0, minM1.estadoInicial)
         fila_estados2.insert(0, minM2.estadoInicial)
 
+        # Executa enquanto houverem estados a serem processados em M1 e em M2
         while fila_estados1 and fila_estados2:
-            #print('fe1 ', fila_estados1)
-            #print('fe2 ', fila_estados2)
             fila_prox_estados1 = []
             fila_prox_estados2 = []
             lista_simb1 = []
@@ -886,11 +886,9 @@ class Automato:
             totFinal1 = 0
             totFinal2 = 0
 
-            # Pega simbolos atingiveis pelo automato 1
+            # Pega simbolos atingiveis por M1
             for state in fila_estados1:
-                #print(state)
                 tmp = minM1.simbolosAtingiveis(state)
-                #print('SA1: ', tmp)
                 if tmp != None:
                     lista_simb1.extend(tmp)
                 visitados1[state] = True
@@ -898,9 +896,10 @@ class Automato:
                 if minM1.isFinal(state):
                     totFinal1 += 1
 
+            # Pega simbolos atingiveis por M2
             for state in fila_estados2:
                 tmp = minM2.simbolosAtingiveis(state)
-                #print('SA2: ', tmp)
+
                 if tmp != None:
                     lista_simb2.extend(tmp)
                 visitados2[state] = True
@@ -908,44 +907,48 @@ class Automato:
                 if minM2.isFinal(state):
                     totFinal2 += 1
 
+            # Se a lista se simbolos atingidos por M1 for diferente de M2 ou
+            # se houverem estados finais atingidos pelos estados atuais que estão
+            # em um autômato e não estão em outro, rejeita
             if (set(lista_simb1) != set(lista_simb2)) or (totFinal1 != totFinal2):
                 return False
 
             # Prepara a próxima iteração
+            # Pega todos os estados atingiveis pelos estados que estão na fila de M1
             for state in fila_estados1:
                 fila_prox_estados1.extend(minM1.estadosAtingiveis(state))
 
+            # Pega todos os estados atingiveis pelos estados que estão na fila de M2
             for state in fila_estados2:
                 fila_prox_estados2.extend(minM2.estadosAtingiveis(state))
 
-            # Elimina estados que já foram visitados
+            # Elimina estados que já foram visitados por M1
             i = 0
             tam = len(fila_prox_estados1)
-            #print('pe 1: ', fila_prox_estados1)
-            #print('viz1', visitados1)
+
             while i < tam:
                 if visitados1.get(fila_prox_estados1[i]) != None:
                     fila_prox_estados1.pop(i)
                     tam -= 1
                     i -= 1
                 i += 1
-            #print('pe 1: ', fila_prox_estados1)
 
+            # Elimina estados que já foram visitados por M2
             i = 0
             tam = len(fila_prox_estados2)
-            #print('pe 2: ', fila_prox_estados2)
-            #print('viz2', visitados2)
+
             while i < tam:
                 if visitados2.get(fila_prox_estados2[i]) != None:
                     fila_prox_estados2.pop(i)
                     tam -= 1
                     i -= 1 # Decrementa i pq vai ser incrementado logo em seguida, e como foi exluido um item, evita que pule itens
                 i += 1
-            #print('pe 2: ', fila_prox_estados2)
 
+            # Coloca os próximos estados que não foram visitados na fila de estados a serem processados
             fila_estados1 = fila_prox_estados1
             fila_estados2 = fila_prox_estados2
 
+        # Se no final sobrar estados não processados em M1 ou em M2, é porque não são iguais
         if fila_estados1 or fila_estados2:
             return False
 
