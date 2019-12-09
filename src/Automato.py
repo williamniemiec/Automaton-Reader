@@ -31,7 +31,8 @@ def csvToWordList(filename):
     # Lê cada linha do arquivo e coloca na wordList
     for line in content:
         tmp = []
-        tmp.extend(re.findall('[A-Za-z]+[^"\n\s]*', line)) # Lê linha tirando aspas e quebras de linha
+        #### aceita palavras separadas por virgula virgulas
+        tmp.extend(re.findall('[A-Za-z]+[^"\n\s,]*', line)) # Lê linha tirando aspas e quebras de linha
         if tmp:
             wordList.append(tmp)
     
@@ -483,6 +484,7 @@ class Automato:
             # Percorre todos o alfabeto das palavras
             for symbol in word:
                 # Percorre todos os estados que estão sendo analisados no momento
+                # "Anda no grafo de transições em cada estado atual"
                 for s in estadoAtual:
                     tmp = self.funcaoPrograma(s, symbol) # Função programa para estado atual
                     if tmp[0] != '&':       # Se não for palavra vazia, coloca na lista estadoAtual
