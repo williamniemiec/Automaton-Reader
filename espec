@@ -1,0 +1,47 @@
+<M>=({<q0>,...,<qn>},{<s1>,...,<sn>},<ini>,{ <f0>,...,<fn>})
+Prog
+(<q0>,<s1>)=<q1>
+...
+(<qn>,<sn>)=<q0>
+onde:
+< M >: nome dado ao autômato;
+< qi >: para 0 &le; i &le; n, com n &isin; N e n &ge; 0, representa um estado do autômato;
+< si >: para 1 &le; i &le; n, com n &isin; N e n &ge; 1, representa um símbolo do alfabeto da
+linguagem reconhecida pelo autômato;
+< ini >: indica o estado inicial do autômato, sendo que ini é um estado do autômato;
+< fi >: para 0 &le; i &le; n, com n &isin; N e n &ge; 0, representa um estado final do autômato,
+sendo que fi é um estado do autômato;
+(< qi >;< si >) =< qj >: descreve a função programa aplicada a um estado qi e um
+símbolo de entrada si que leva a computação a um estado qj.
+Exemplo:
+AUTÔMATO=({q0,q1,q2;,q3},{a,b},q0,{q1,q3})
+Prog
+(q0,a)=q1
+(q0,b)=q2;
+(q1,b)=q2;
+(q2,a)=q3
+(q2,a)=q2;
+(q3,a)=q3
+(q3,b)=q2;
+
+<G>=({<V0>,...,<Vn>},{<s1>,...,<sn>},<S>,<Prod>)
+<Prod>
+<S> -> <s1> <V0>
+...
+<Vn> -> <sn> <V2>
+onde:
+< G >: nome dado a GR;
+< V i >: para 0 &le; i &le; n, com n &isin; N e n &ge; 0, representa uma variável da GR;
+< si >: para 1 &le; i &le; n, com n &isin; N e n &ge; 1, representa um símbolo do alfabeto da
+linguagem gerada pela GR (terminais);
+< S >: indica o símbolo inicial, tal que S é uma variável da GR;
+< Prod >: é o nome do conjunto de produções da GR;
+< Vi > -> < si >< Vj >: descreve a produção que substitui a variável Vi pelo
+símbolo si seguido da variável V j. Símbolo & indica produção vazia
+
+G = ({S, A, B},{a,b},S,P)
+P
+S -> a A
+A -> a A
+A -> b B
+B -> &
