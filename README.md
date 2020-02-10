@@ -111,7 +111,7 @@ Now just choose the desired option.
 | media | Directory| Contains photos used in readme&#46;md
 | examples | Directory| Contains files that can be used to test the application (contains automata and files with words)
 | src | Directory| Contains the classes responsible for running the application
-| tests | Directory | Contém os testes das classes da aplicação
+| tests | Directory | Contains application class tests
 
 ### /tests
 |Name | Type | Function
