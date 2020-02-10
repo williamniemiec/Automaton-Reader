@@ -92,9 +92,13 @@ B -&gt; &
 ## How the application works?
 To run the application, just run the file <code>releases/automaton.exe</code>
 After executing the file, the program's initial menu will open. Choosing the option to open an automaton, a window will open to open the file containing the automaton (must be in the format specified above).
+
 ![](https://github.com/williamniemiec/Automaton-Reader/blob/master/media/1.InitialMenu.png?raw=true)
+
  Once the file is opened, the main program menu will open, as shown in the image below.
+ 
 ![](https://github.com/williamniemiec/Automaton-Reader/blob/master/media/2.MainMenu.png?raw=true)
+
 Now just choose the desired option.
 
 
@@ -212,9 +216,13 @@ B -&gt; &
 ## Como funciona?
 Para executar a aplicação, basta executar o arquivo <code>releases/automaton.exe</code>
 Após a execução do arquivo será aberto o menu inicial do programa. Escolhendo a opção de abrir um autômato será aberta uma janela para abrir o arquivo que contém o autômato (deve estar no formato especificado acima).
+
 ![](https://github.com/williamniemiec/Automaton-Reader/blob/master/media/1.InitialMenu.png?raw=true)
+
  Aberto o arquivo, será aberto o menu principal do programa, como mostra a imagem abaixo.
+ 
 ![](https://github.com/williamniemiec/Automaton-Reader/blob/master/media/2.MainMenu.png?raw=true)
+
 Agora basta escolher a opção desejada.
 
 
