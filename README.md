@@ -111,9 +111,17 @@ Now just choose the desired option.
 | media | Directory| Contains photos used in readme&#46;md
 | examples | Directory| Contains files that can be used to test the application (contains automata and files with words)
 | src | Directory| Contains the classes responsible for running the application
+| tests | Directory | Contém os testes das classes da aplicação
 
+### /tests
+|Name | Type | Function
+|------- | --- | ----
+| media | Directory | Contains the files used in the tests (automata and word file)
+| AutomatonFileManagerTest&#46;py | File | Contains tests related to the 'AutomatonFileManager' class
+| AutomatonListHelperTest&#46;py | File | Contains tests related to the 'AutomatonListHelper' class
+| AutomatonTest&#46;py | File | Contains tests related to the 'Automaton' class
 
-### References
+## References
 - [Paulo Blauth Menezes - Linguagens Formais e Autômatos: Volume 3 da Série Livros Didáticos Informática UFRGS](https://books.google.com.br/books?id=OEBJ5ga7nvUC&dq=minimiza%C3%A7%C3%A3o+de+automato+ufrgs&hl=pt-BR&source=gbs_navlinks_s)
 - [Prof. Juan Moises Mauricio Villanueva - Conversão de Autômatos Finitos Não Determinísticos (AFND) para
 Autômatos Finitos Determinísticos (AFD) ](http://www.cear.ufpb.br/juan/wp-content/uploads/2016/08/Aula-4b-Convers%C3%A3o-de-AFND-para-AFD.pdf)
@@ -234,9 +242,17 @@ Agora basta escolher a opção desejada.
 | media | Diretório | Contém fotos usadas no readme&#46;md
 | examples | Diretório | Contém arquivos que podem ser usados para testar a aplicação (contém automatos e arquivos com palavras)
 | src | Diretório | Contém as classes responsáveis pelo funcionamento da aplicação
+| tests | Diretório | Contém os testes das classes da aplicação
 
+### /tests
+|Nome | Tipo | Função
+|------- | --- | ----
+| media | Diretório | Contém os arquivos utilizados nos testes (autômatos e arquivo de palavras)
+| AutomatonFileManagerTest&#46;py | Arquivo | Contém os testes relativos a classe 'AutomatonFileManager'
+| AutomatonListHelperTest&#46;py | Arquivo | Contém os testes relativos a classe 'AutomatonListHelper'
+| AutomatonTest&#46;py | Arquivo | Contém os testes relativos a classe 'Automaton'
 
-### Referências
+## Referências
 - [Paulo Blauth Menezes - Linguagens Formais e Autômatos: Volume 3 da Série Livros Didáticos Informática UFRGS](https://books.google.com.br/books?id=OEBJ5ga7nvUC&dq=minimiza%C3%A7%C3%A3o+de+automato+ufrgs&hl=pt-BR&source=gbs_navlinks_s)
 - [Prof. Juan Moises Mauricio Villanueva - Conversão de Autômatos Finitos Não Determinísticos (AFND) para
 Autômatos Finitos Determinísticos (AFD) ](http://www.cear.ufpb.br/juan/wp-content/uploads/2016/08/Aula-4b-Convers%C3%A3o-de-AFND-para-AFD.pdf)
