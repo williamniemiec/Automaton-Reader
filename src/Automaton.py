@@ -9,8 +9,8 @@
 import pprint
 import re
 
-from src.AutomatonView import AutomatonView
-from src.AutomatonListHelper import AutomatonListHelper
+from AutomatonView import AutomatonView
+from AutomatonListHelper import AutomatonListHelper
 
 
 #--------------------------------------------------------------------------
@@ -166,7 +166,7 @@ class Automaton:
             # Prepares the next iteration
             i += 1
             nfaTable.append([[] for x in range(length)])
-            currentStates = AutomatonListHelper.largerSizeList_NotVisited(aux, visited, statesQueue) 
+            currentStates = AutomatonListHelper.largestElementSize_NotVisited(aux, visited, statesQueue) 
             # If all fields in aux have the same size, it will return a queue of these states in 'statesQueue'
 
         nfaTable.pop()     # Removes final row because it will be empty

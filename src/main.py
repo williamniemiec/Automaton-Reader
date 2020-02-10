@@ -7,9 +7,9 @@
 #    IMPORTS
 #--------------------------------------------------------------------------
 import os
-from src.Automaton import Automaton
-from src.AutomatonFileManager import AutomatonFileManager
-from src.AutomatonView import AutomatonView
+from Automaton import Automaton
+from AutomatonFileManager import AutomatonFileManager
+from AutomatonView import AutomatonView
 
 
 #--------------------------------------------------------------------------

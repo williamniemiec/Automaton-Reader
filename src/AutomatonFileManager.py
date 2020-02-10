@@ -3,7 +3,7 @@ import pprint
 import re
 from tkinter import filedialog
 
-from src.AutomatonView import AutomatonView
+from AutomatonView import AutomatonView
 import tkinter as tk
 
 

@@ -16,7 +16,7 @@ class AutomatonListHelper:
     
     
     '''
-    ' Returns list of largest size without elements that have already been visited 
+    ' Returns list element of largest size without elements that have already been visited 
     ' (if all lists have elements visited, returns None)
     ' If all lists are of size 1, return None and update stack of states to be processed
     '
@@ -24,10 +24,10 @@ class AutomatonListHelper:
     ' @param dictionary visited Elements to be ignored
     ' @param list stackProcess Stack that will be filled if all lists are of size 1
     '
-    ' @return list | None
+    ' @return string | int | float | None
     '''
     @staticmethod
-    def largerSizeList_NotVisited(array, visited, stackProcess):
+    def largestElementSize_NotVisited(array, visited, stackProcess):
         if not array:
             return None
         
