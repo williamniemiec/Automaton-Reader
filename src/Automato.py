@@ -306,6 +306,7 @@ class Automato:
             
             # Atualiza estados finais, se necessário
             if final:
+                print("final\n")
                 afd.estadosFinais.append(estado)
         
         # Retira ultima posição da função programa (excesso)
