@@ -1,0 +1,11 @@
+"ligar""desligar"
+"ligar""limpar""batFraca""ecoBat""desligar"
+"ligar""standBy""limpar""batFraca""ecoBat""desligar"
+"ligar""limpar""catarLixo""andar""reservFull""esvaziar""desligar"
+"ligar""limpar""catarLixo""livre""obstac""livre""obstac""reservFull""esvaziar""desligar"
+"ligar""limpar"
+"ligar""batFraca""ecoBat"
+"ligar""standBy""limpar""catarLixo""batFraca"
+"ligar""standBy""limpar""catarLixo""obstac""batFraca""ecoBat""standBy"
+"ligar""standBy""standBy""standBy""standBy""standBy""standBy""standBy""standBy""batFraca"
+
